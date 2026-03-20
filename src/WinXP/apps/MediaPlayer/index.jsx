@@ -1,82 +1,153 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { WindowDropDowns } from 'components';
 import dropDownData from './dropDownData';
 
-const TRACKS = [
-  {
-    title: 'Track 1',
-    artist: 'Unknown Artist',
-    album: 'Unknown Album',
-    duration: 213,
-  },
-  {
-    title: 'Track 2',
-    artist: 'Unknown Artist',
-    album: 'Unknown Album',
-    duration: 187,
-  },
-  {
-    title: 'Track 3',
-    artist: 'Unknown Artist',
-    album: 'Unknown Album',
-    duration: 254,
-  },
-];
-
-function formatTime(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
 export default function MediaPlayer({ onClose }) {
   const [playing, setPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState(0);
-  const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(70);
   const [muted, setMuted] = useState(false);
-  const intervalRef = useRef(null);
-  const track = TRACKS[currentTrack];
+  const videoRef = useRef(null);
+  const seekTrackRef = useRef(null);
+  const seekFillRef = useRef(null);
+  const seekThumbRef = useRef(null);
+  const volTrackRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const [volDragging, setVolDragging] = useState(false);
+
+  function updateSeekDom(pct) {
+    if (seekFillRef.current) seekFillRef.current.style.width = `${pct}%`;
+    if (seekThumbRef.current) seekThumbRef.current.style.left = `calc(${pct}% - 9px)`;
+  }
 
   useEffect(() => {
-    if (playing) {
-      intervalRef.current = setInterval(() => {
-        setProgress((p) => {
-          const next = p + 100 / track.duration;
-          if (next >= 100) {
-            setCurrentTrack((t) => (t + 1) % TRACKS.length);
-            return 0;
-          }
-          return next;
-        });
-      }, 1000);
-    } else {
-      clearInterval(intervalRef.current);
+    const video = videoRef.current;
+    if (!video) return;
+    const onTimeUpdate = () => {
+      updateSeekDom((video.currentTime / video.duration) * 100 || 0);
+    };
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    const onEnded = () => {
+      setPlaying(false);
+      updateSeekDom(0);
+    };
+    video.addEventListener('timeupdate', onTimeUpdate);
+    video.addEventListener('play', onPlay);
+    video.addEventListener('pause', onPause);
+    video.addEventListener('ended', onEnded);
+    return () => {
+      video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('play', onPlay);
+      video.removeEventListener('pause', onPause);
+      video.removeEventListener('ended', onEnded);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = volume / 100;
+  }, [volume]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = muted;
+  }, [muted]);
+
+  useEffect(() => {
+    if (!dragging) return;
+    function onMouseMove(e) { seekTo(getSeekPercent(e.clientX)); }
+    function onMouseUp() { setDragging(false); }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [dragging]);
+
+  function getSeekPercent(clientX) {
+    const el = seekTrackRef.current;
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+  }
+
+  function seekTo(pct) {
+    const video = videoRef.current;
+    if (video && video.duration) {
+      video.currentTime = (pct / 100) * video.duration;
     }
-    return () => clearInterval(intervalRef.current);
-  }, [playing, track.duration]);
+    updateSeekDom(pct);
+  }
+
+  function onTrackMouseDown(e) {
+    e.preventDefault();
+    seekTo(getSeekPercent(e.clientX));
+    setDragging(true);
+  }
 
   function onClickOptionItem(item) {
     if (item === 'Exit') onClose();
   }
 
-  function prevTrack() {
-    setCurrentTrack((t) => (t - 1 + TRACKS.length) % TRACKS.length);
-    setProgress(0);
-  }
-
-  function nextTrack() {
-    setCurrentTrack((t) => (t + 1) % TRACKS.length);
-    setProgress(0);
+  function togglePlay() {
+    const video = videoRef.current;
+    if (!video) return;
+    if (playing) {
+      video.pause();
+    } else {
+      video.play();
+    }
   }
 
   function stop() {
-    setPlaying(false);
-    setProgress(0);
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
+    updateSeekDom(0);
   }
 
-  const elapsed = Math.floor((progress / 100) * track.duration);
+  useEffect(() => {
+    if (!volDragging) return;
+    function onMouseMove(e) { setVolFromX(e.clientX); }
+    function onMouseUp() { setVolDragging(false); }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [volDragging]);
+
+  function setVolFromX(clientX) {
+    const el = volTrackRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const pct = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+    setVolume(pct);
+    setMuted(false);
+  }
+
+  function onVolTrackMouseDown(e) {
+    e.preventDefault();
+    setVolFromX(e.clientX);
+    setVolDragging(true);
+  }
+
+  function seekBack() {
+    const video = videoRef.current;
+    if (video) video.currentTime = Math.max(0, video.currentTime - 10);
+  }
+
+  function seekForward() {
+    const video = videoRef.current;
+    if (video)
+      video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+  }
 
   return (
     <Container>
@@ -85,120 +156,50 @@ export default function MediaPlayer({ onClose }) {
       </MenuBar>
       <Body>
         <NowPlaying>
-          <VisualizerContainer>
-            <VisualizerBars>
-              {[...Array(28)].map((_, i) => (
-                <Bar key={i} index={i} playing={playing} />
-              ))}
-            </VisualizerBars>
-            <WmpLogo>
-              <LogoRing />
-              <LogoPlay>&#9654;</LogoPlay>
-            </WmpLogo>
-          </VisualizerContainer>
-          <TrackInfoPanel>
-            <TrackTitle>{track.title}</TrackTitle>
-            <TrackMeta>
-              {track.artist} — {track.album}
-            </TrackMeta>
-          </TrackInfoPanel>
+          <Video ref={videoRef} src="/moe.mp4" autoPlay muted={muted} />
         </NowPlaying>
-        <Playlist>
-          <PlaylistHeader>Now Playing</PlaylistHeader>
-          {TRACKS.map((t, i) => (
-            <PlaylistItem
-              key={i}
-              active={i === currentTrack}
-              onClick={() => {
-                setCurrentTrack(i);
-                setProgress(0);
-              }}
-            >
-              <PlaylistIndex active={i === currentTrack}>
-                {i === currentTrack && playing ? '▶' : i + 1}
-              </PlaylistIndex>
-              <PlaylistTrackName active={i === currentTrack}>
-                {t.title}
-              </PlaylistTrackName>
-              <PlaylistDuration>{formatTime(t.duration)}</PlaylistDuration>
-            </PlaylistItem>
-          ))}
-        </Playlist>
       </Body>
       <Controls>
-        <SeekRow>
-          <TimeLabel>{formatTime(elapsed)}</TimeLabel>
-          <SeekBar
-            type="range"
-            min="0"
-            max="100"
-            value={progress}
-            onChange={(e) => setProgress(Number(e.target.value))}
-          />
-          <TimeLabel>{formatTime(track.duration)}</TimeLabel>
-        </SeekRow>
-        <BottomRow>
-          <TransportGroup>
-            <TBtn title="Previous" onClick={prevTrack}>
-              &#9664;&#9664;
-            </TBtn>
-            <TBtn
-              title="Rewind"
-              onClick={() => setProgress((p) => Math.max(0, p - 5))}
-            >
-              &#9664;
-            </TBtn>
-            <PlayPauseBtn
-              title={playing ? 'Pause' : 'Play'}
-              onClick={() => setPlaying((p) => !p)}
-            >
-              {playing ? '&#10074;&#10074;' : '&#9654;'}
-            </PlayPauseBtn>
-            <TBtn title="Stop" onClick={stop}>
-              &#9632;
-            </TBtn>
-            <TBtn
-              title="Fast Forward"
-              onClick={() => setProgress((p) => Math.min(99, p + 5))}
-            >
-              &#9654;
-            </TBtn>
-            <TBtn title="Next" onClick={nextTrack}>
-              &#9654;&#9654;
-            </TBtn>
-          </TransportGroup>
-          <VolumeGroup>
-            <VolBtn
-              title={muted ? 'Unmute' : 'Mute'}
-              onClick={() => setMuted((m) => !m)}
-            >
-              {muted ? '🔇' : volume > 50 ? '🔊' : volume > 0 ? '🔉' : '🔈'}
-            </VolBtn>
-            <VolumeBar
-              type="range"
-              min="0"
-              max="100"
-              value={muted ? 0 : volume}
-              onChange={(e) => {
-                setVolume(Number(e.target.value));
-                setMuted(false);
-              }}
-            />
-          </VolumeGroup>
-        </BottomRow>
+        <PlayPauseBtn
+          title={playing ? 'Pause' : 'Play'}
+          onClick={togglePlay}
+          $playing={playing}
+        />
+        <StopBtn title="Stop" onClick={stop} />
+        <ControlsRight>
+          <SeekRow>
+            <SeekTrack ref={seekTrackRef} onMouseDown={onTrackMouseDown}>
+              <SeekFill ref={seekFillRef} />
+              <SeekThumb ref={seekThumbRef} />
+            </SeekTrack>
+          </SeekRow>
+          <BottomRow>
+            <TransportGroup>
+              <PrevBtn title="-10s" onClick={seekBack} />
+              <NextBtn title="+10s" onClick={seekForward} />
+            </TransportGroup>
+            <VolumeGroup>
+              <VolBtn
+                title={muted ? 'Unmute' : 'Mute'}
+                onClick={() => setMuted((m) => !m)}
+              >
+                {muted ? '🔇' : '🔊'}
+              </VolBtn>
+              <VolumeTrack ref={volTrackRef} onMouseDown={onVolTrackMouseDown}>
+                <VolumeFill style={{ width: `${muted ? 0 : volume}%` }} />
+                <VolumeThumb style={{ left: `calc(${muted ? 0 : volume}% - 9px)` }} />
+              </VolumeTrack>
+            </VolumeGroup>
+          </BottomRow>
+        </ControlsRight>
       </Controls>
     </Container>
   );
 }
 
-const barAnimation = keyframes`
-  0%, 100% { height: 4px; }
-  50% { height: 100%; }
-`;
-
 const Container = styled.div`
   height: 100%;
-  background: #1a1a1a;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   color: #fff;
@@ -207,11 +208,12 @@ const Container = styled.div`
 `;
 
 const MenuBar = styled.section`
-  background: linear-gradient(to bottom, #2d2d2d, #1f1f1f);
-  border-bottom: 1px solid #444;
+  background: #ebe9d8;
+  border-bottom: 1px solid #f8f6f5;
   flex-shrink: 0;
   height: 21px;
   position: relative;
+  color: #040100;
 `;
 
 const Body = styled.div`
@@ -224,237 +226,171 @@ const NowPlaying = styled.div`
   flex: 1;
   background: #000;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-`;
-
-const VisualizerContainer = styled.div`
-  width: 100%;
-  flex: 1;
-  background: radial-gradient(ellipse at center, #001a33 0%, #000 70%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 10px;
-  position: relative;
   overflow: hidden;
 `;
 
-const VisualizerBars = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
+const Video = styled.video`
   width: 100%;
   height: 100%;
-  padding: 0 10px;
-`;
-
-const Bar = styled.div`
-  flex: 1;
-  background: linear-gradient(to top, #00a8ff, #0050c8);
-  border-radius: 1px 1px 0 0;
-  min-height: 4px;
-  animation: ${({ playing }) => (playing ? barAnimation : 'none')}
-    ${({ index }) => 0.4 + (index % 7) * 0.1}s ease-in-out infinite;
-  animation-delay: ${({ index }) => (index % 5) * 0.07}s;
-`;
-
-const WmpLogo = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const LogoRing = styled.div`
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ff6600 0%, #cc0000 60%, #880000 100%);
-  box-shadow: 0 0 12px rgba(255, 100, 0, 0.6);
-  border: 2px solid #ff8844;
-`;
-
-const LogoPlay = styled.span`
-  position: relative;
-  font-size: 18px;
-  color: #fff;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-  margin-left: 2px;
-`;
-
-const TrackInfoPanel = styled.div`
-  background: linear-gradient(to right, #0d2240, #0a1a33);
-  width: 100%;
-  padding: 6px 10px;
-  border-top: 1px solid #003366;
-  flex-shrink: 0;
-`;
-
-const TrackTitle = styled.div`
-  font-size: 12px;
-  font-weight: bold;
-  color: #7ec8ff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const TrackMeta = styled.div`
-  font-size: 10px;
-  color: #5599cc;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const Playlist = styled.div`
-  width: 180px;
-  background: #111;
-  border-left: 1px solid #333;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex-shrink: 0;
-`;
-
-const PlaylistHeader = styled.div`
-  background: linear-gradient(to bottom, #2a2a2a, #1e1e1e);
-  color: #aaa;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-bottom: 1px solid #333;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-`;
-
-const PlaylistItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  cursor: pointer;
-  background: ${({ active }) =>
-    active ? 'linear-gradient(to right, #003366, #002244)' : 'transparent'};
-  border-bottom: 1px solid #1a1a1a;
-  gap: 4px;
-  &:hover {
-    background: ${({ active }) =>
-      active ? 'linear-gradient(to right, #003366, #002244)' : '#1e1e1e'};
-  }
-`;
-
-const PlaylistIndex = styled.span`
-  color: ${({ active }) => (active ? '#7ec8ff' : '#555')};
-  font-size: 9px;
-  width: 12px;
-  flex-shrink: 0;
-`;
-
-const PlaylistTrackName = styled.span`
-  flex: 1;
-  color: ${({ active }) => (active ? '#7ec8ff' : '#999')};
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const PlaylistDuration = styled.span`
-  color: #555;
-  font-size: 10px;
-  flex-shrink: 0;
+  object-fit: contain;
 `;
 
 const Controls = styled.div`
-  background: linear-gradient(to bottom, #222, #1a1a1a);
-  border-top: 1px solid #444;
-  padding: 4px 8px 6px;
+  background: linear-gradient(
+    to bottom,
+    #b0c4de 0%,
+    #7a96d4 10%,
+    #5b7cc2 50%,
+    #4a6bb3 95%,
+    #2a407a 100%
+  );
+  border-top: 1px solid #d1e0f3;
+  border-bottom: 1px solid #1a2a52;
+  padding: 4px 8px;
+  height: 52px;
+  box-sizing: border-box;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 `;
+
+const ControlsRight = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+`;
+
 
 const SeekRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  position: relative;
+  top: 5px;
 `;
 
-const TimeLabel = styled.span`
-  color: #7ec8ff;
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-  min-width: 30px;
-`;
-
-const SeekBar = styled.input`
+const SeekTrack = styled.div`
   flex: 1;
   height: 4px;
+  border-radius: 2px;
+  background: #555;
+  position: relative;
   cursor: pointer;
-  accent-color: #0078d7;
+  align-self: center;
+  overflow: visible;
+`;
+
+const SeekFill = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #55c166;
+  border-radius: 2px;
+  pointer-events: none;
+`;
+
+const SeekThumb = styled.div`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  width: 18px;
+  height: 13px;
+  background: url('/buttons/Bitmap2242.png') center / contain no-repeat;
+  cursor: grab;
+  &:hover {
+    background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+  }
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 const BottomRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  top: 7px;
 `;
 
 const TransportGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0px;
+  margin-left: -7px;
 `;
 
-const TBtn = styled.button`
-  background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
-  border: 1px solid #555;
-  color: #ccc;
-  border-radius: 3px;
-  width: 26px;
-  height: 22px;
+const PlayPauseBtn = styled.button`
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  border: none;
+  margin-left: -8px;
+  background: url(${(p) =>
+      p.$playing
+        ? '/buttons/Bitmap1818_pause.png'
+        : '/buttons/Bitmap1815.png'})
+    center / contain no-repeat;
   cursor: pointer;
-  font-size: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 0;
   &:hover {
-    background: linear-gradient(to bottom, #4a4a4a, #3a3a3a);
-    color: #fff;
-  }
-  &:active {
-    background: linear-gradient(to bottom, #222, #2a2a2a);
+    background: url(${(p) =>
+        p.$playing
+          ? '/buttons/Bitmap1818_pause_press.png'
+          : '/buttons/Bitmap1816_play_pressed.png'})
+      center / contain no-repeat;
   }
 `;
 
-const PlayPauseBtn = styled(TBtn)`
-  width: 32px;
-  background: linear-gradient(to bottom, #0060b0, #004488);
-  border-color: #0078d7;
-  color: #fff;
-  font-size: 11px;
+const StopBtn = styled.button`
+  width: 33px;
+  height: 33px;
+  flex-shrink: 0;
+  border: none;
+  background: url('/buttons/Bitmap1821.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  margin-left: -14px;
+  margin-top: 10px;
   &:hover {
-    background: linear-gradient(to bottom, #0070c0, #005599);
+    background: url('/buttons/Bitmap1822.png') center / contain no-repeat;
   }
 `;
+
+const NextBtn = styled.button`
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border: none;
+  background: url('/buttons/Bitmap1825_right.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  &:hover {
+    background: url('/buttons/Bitmap1827_right.png') center / contain no-repeat;
+  }
+`;
+
+const PrevBtn = styled.button`
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border: none;
+  background: url('/buttons/Bitmap1825_left.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  &:hover {
+    background: url('/buttons/Bitmap1827.png') center / contain no-repeat;
+  }
+`;
+
 
 const VolumeGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
 `;
 
 const VolBtn = styled.button`
@@ -464,11 +400,42 @@ const VolBtn = styled.button`
   font-size: 13px;
   padding: 0;
   line-height: 1;
+  margin-left: -8px;
 `;
 
-const VolumeBar = styled.input`
+const VolumeTrack = styled.div`
   width: 70px;
   height: 4px;
+  border-radius: 2px;
+  background: #555;
+  position: relative;
   cursor: pointer;
-  accent-color: #0078d7;
+  align-self: center;
+  overflow: visible;
+`;
+
+const VolumeFill = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #55c166;
+  border-radius: 2px;
+  pointer-events: none;
+`;
+
+const VolumeThumb = styled.div`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  width: 18px;
+  height: 13px;
+  background: url('/buttons/Bitmap2242.png') center / contain no-repeat;
+  cursor: grab;
+  &:hover {
+    background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+  }
+  &:active {
+    cursor: grabbing;
+  }
 `;

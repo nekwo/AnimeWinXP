@@ -339,7 +339,7 @@ function MyComputer({ onClose }) {
               </div>
               <div className="com__content__right__card__content">
                 <a
-                  href="https://github.com/ShizukuIchi"
+                  href="https://github.com/nekwo" 
                   target="_blank"
                   rel="noreferrer"
                   className="com__content__right__card__item--me"
@@ -352,7 +352,7 @@ function MyComputer({ onClose }) {
                   <div className="com__content__right__card__text">Github</div>
                 </a>
                 <a
-                  href="https://sh1zuku.csie.io"
+                  href="https://exe.bot"
                   target="_blank"
                   rel="noreferrer"
                   className="com__content__right__card__item--me"
@@ -363,7 +363,7 @@ function MyComputer({ onClose }) {
                     alt="control"
                   />
                   <div className="com__content__right__card__text">
-                    My Website
+                    My Old Website
                   </div>
                 </a>
               </div>

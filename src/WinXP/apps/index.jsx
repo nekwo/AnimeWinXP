@@ -48,7 +48,7 @@ export const defaultAppState = [
   //   maximized: window.innerWidth < 800,
   //   id: genId(),
   //   zIndex: genIndex(),
-  // },
+  // },                        
   
   // ,{
   //   component: Minesweeper,
@@ -310,8 +310,8 @@ export const appSettings = {
     },
     component: MediaPlayer,
     defaultSize: {
-      width: 620,
-      height: 480,
+      width: 520,
+      height: 390,
     },
     defaultOffset: {
       x: 290,
