@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { WindowDropDowns } from 'components';
 import dropDownData from './dropDownData';
 
-export default function MediaPlayer({ onClose }) {
+export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick = false }) {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
   const [muted, setMuted] = useState(false);
@@ -19,6 +19,18 @@ export default function MediaPlayer({ onClose }) {
     if (seekFillRef.current) seekFillRef.current.style.width = `${pct}%`;
     if (seekThumbRef.current) seekThumbRef.current.style.left = `calc(${pct}% - 9px)`;
   }
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (!autoPlayOnClick) return;
+    function onFirstClick() {
+      video.play().catch(() => {});
+      document.removeEventListener('click', onFirstClick);
+    }
+    document.addEventListener('click', onFirstClick);
+    return () => document.removeEventListener('click', onFirstClick);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -156,7 +168,7 @@ export default function MediaPlayer({ onClose }) {
       </MenuBar>
       <Body>
         <NowPlaying>
-          <Video ref={videoRef} src="/moe.mp4" autoPlay muted={muted} />
+          <Video ref={videoRef} src={src} autoPlay muted={muted} />
         </NowPlaying>
       </Body>
       <Controls>
@@ -168,10 +180,12 @@ export default function MediaPlayer({ onClose }) {
         <StopBtn title="Stop" onClick={stop} />
         <ControlsRight>
           <SeekRow>
+            <SeekBackBtn title="-10s" onClick={seekBack} />
             <SeekTrack ref={seekTrackRef} onMouseDown={onTrackMouseDown}>
               <SeekFill ref={seekFillRef} />
               <SeekThumb ref={seekThumbRef} />
             </SeekTrack>
+            <SeekFwdBtn title="+10s" onClick={seekForward} />
           </SeekRow>
           <BottomRow>
             <TransportGroup>
@@ -179,12 +193,11 @@ export default function MediaPlayer({ onClose }) {
               <NextBtn title="+10s" onClick={seekForward} />
             </TransportGroup>
             <VolumeGroup>
-              <VolBtn
+              <MuteBtn
                 title={muted ? 'Unmute' : 'Mute'}
                 onClick={() => setMuted((m) => !m)}
-              >
-                {muted ? '🔇' : '🔊'}
-              </VolBtn>
+                $muted={muted}
+              />
               <VolumeTrack ref={volTrackRef} onMouseDown={onVolTrackMouseDown}>
                 <VolumeFill style={{ width: `${muted ? 0 : volume}%` }} />
                 <VolumeThumb style={{ left: `calc(${muted ? 0 : volume}% - 9px)` }} />
@@ -264,6 +277,34 @@ const ControlsRight = styled.div`
 `;
 
 
+const SeekBackBtn = styled.button`
+  width: 16px;
+  height: 13px;
+  flex-shrink: 0;
+  border: none;
+  background: url('/buttons/Bitmap1833.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 4px;
+  &:hover {
+    background: url('/buttons/Bitmap1834.png') center / contain no-repeat;
+  }
+`;
+
+const SeekFwdBtn = styled.button`
+  width: 16px;
+  height: 13px;
+  flex-shrink: 0;
+  border: none;
+  background: url('/buttons/Bitmap1837.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  &:hover {
+    background: url('/buttons/Bitmap1838.png') center / contain no-repeat;
+  }
+`;
+
 const SeekRow = styled.div`
   display: flex;
   align-items: center;
@@ -313,7 +354,7 @@ const BottomRow = styled.div`
   align-items: center;
   justify-content: space-between;
   position: relative;
-  top: 7px;
+  top: 4px;
 `;
 
 const TransportGroup = styled.div`
@@ -393,14 +434,17 @@ const VolumeGroup = styled.div`
   gap: 10px;
 `;
 
-const VolBtn = styled.button`
-  background: transparent;
+const MuteBtn = styled.button`
+  width: 21px;
+  height: 16px;
+  flex-shrink: 0;
   border: none;
+  background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1840.png')}) center / contain no-repeat;
   cursor: pointer;
-  font-size: 13px;
   padding: 0;
-  line-height: 1;
-  margin-left: -8px;
+  &:hover {
+    background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1841.png')}) center / contain no-repeat;
+  }
 `;
 
 const VolumeTrack = styled.div`

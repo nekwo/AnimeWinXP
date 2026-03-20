@@ -112,6 +112,48 @@ export const defaultAppState = [
     id: genId(),
     zIndex: genIndex(),
   },
+  {
+    component: MediaPlayer,
+    header: {
+      title: 'Windows Media Player',
+      icon: mediaPlayer,
+    },
+    defaultSize: {
+      width: 1040,
+      height: 780,
+    },
+    defaultOffset: {
+      x: 900,
+      y: 480,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    injectProps: { src: '/moe.mp4' },
+    id: genId(),
+    zIndex: genIndex(),
+  },
+  {
+    component: MediaPlayer,
+    header: {
+      title: 'Windows Media Player',
+      icon: mediaPlayer,
+    },
+    defaultSize: {
+      width: 600,
+      height: 698,
+    },
+    defaultOffset: {
+      x: 250,
+      y: 550,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    injectProps: { src: '/boi.mp4', autoPlayOnClick: true},
+    id: genId(),
+    zIndex: genIndex(),
+  },
 ];
 
 export const defaultIconState = [
@@ -314,13 +356,14 @@ export const appSettings = {
       height: 390,
     },
     defaultOffset: {
-      x: 290,
-      y: 80,
+      x: 590,
+      y: 990,
     },
     resizable: true,
     minimized: false,
     maximized: window.innerWidth < 800,
     multiInstance: false,
+    injectProps: { src: '/moe.mp4' },
   },
 };
 
