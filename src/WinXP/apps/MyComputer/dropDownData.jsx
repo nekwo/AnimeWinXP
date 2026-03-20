@@ -391,4 +391,5 @@ const Help = [
     text: 'About Windows',
   },
 ];
-export default { File, Edit, View, Favorites, Tools, Help };
+const dropDownData = { File, Edit, View, Favorites, Tools, Help };
+export default dropDownData;

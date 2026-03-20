@@ -5,8 +5,10 @@ import MyComputer from './MyComputer';
 import Notepad from './Notepad';
 import Winamp from './Winamp';
 import Paint from './Paint';
+import MediaPlayer from './MediaPlayer';
 import iePaper from 'assets/windowsIcons/ie-paper.png';
 import ie from 'assets/windowsIcons/ie.png';
+import mediaPlayer from 'assets/windowsIcons/846(16x16).png';
 import mine from 'assets/minesweeper/mine-icon.png';
 import error from 'assets/windowsIcons/897(16x16).png';
 import computer from 'assets/windowsIcons/676(16x16).png';
@@ -27,67 +29,69 @@ const gen = () => {
 const genId = gen();
 const genIndex = gen();
 export const defaultAppState = [
-  {
-    component: InternetExplorer,
-    header: {
-      title: 'Internet Explorer',
-      icon: iePaper,
-    },
-    defaultSize: {
-      width: 700,
-      height: 500,
-    },
-    defaultOffset: {
-      x: 130,
-      y: 20,
-    },
-    resizable: true,
-    minimized: false,
-    maximized: window.innerWidth < 800,
-    id: genId(),
-    zIndex: genIndex(),
-  },
-  {
-    component: Minesweeper,
-    header: {
-      title: 'Minesweeper',
-      icon: mine,
-    },
-    defaultSize: {
-      width: 0,
-      height: 0,
-    },
-    defaultOffset: {
-      x: 180,
-      y: 170,
-    },
-    resizable: false,
-    minimized: false,
-    maximized: false,
-    id: genId(),
-    zIndex: genIndex(),
-  },
-  {
-    component: Winamp,
-    header: {
-      title: 'Winamp',
-      icon: winamp,
-      invisible: true,
-    },
-    defaultSize: {
-      width: 0,
-      height: 0,
-    },
-    defaultOffset: {
-      x: 0,
-      y: 0,
-    },
-    resizable: false,
-    minimized: false,
-    maximized: false,
-    id: genId(),
-    zIndex: genIndex(),
-  },
+  // {
+  //   component: InternetExplorer,
+  //   header: {
+  //     title: 'Internet Explorer',
+  //     icon: iePaper,
+  //   },
+  //   defaultSize: {
+  //     width: 700,
+  //     height: 500,
+  //   },
+  //   defaultOffset: {
+  //     x: 130,
+  //     y: 20,
+  //   },
+  //   resizable: true,
+  //   minimized: false,
+  //   maximized: window.innerWidth < 800,
+  //   id: genId(),
+  //   zIndex: genIndex(),
+  // },
+  
+  // ,{
+  //   component: Minesweeper,
+  //   header: {
+  //     title: 'Minesweeper',
+  //     icon: mine,
+  //   },
+  //   defaultSize: {
+  //     width: 0,
+  //     height: 0,
+  //   },
+  //   defaultOffset: {
+  //     x: 180,
+  //     y: 170,
+  //   },
+  //   resizable: false,
+  //   minimized: false,
+  //   maximized: false,
+  //   id: genId(),
+  //   zIndex: genIndex(),
+  //  },
+  //,
+  // {
+  //   component: Winamp,
+  //   header: {
+  //     title: 'Winamp',
+  //     icon: winamp,
+  //     invisible: true,
+  //   },
+  //   defaultSize: {
+  //     width: 0,
+  //     height: 0,
+  //   },
+  //   defaultOffset: {
+  //     x: 0,
+  //     y: 0,
+  //   },
+  //   resizable: false,
+  //   minimized: false,
+  //   maximized: false,
+  //   id: genId(),
+  //   zIndex: genIndex(),
+  // },
   {
     component: MyComputer,
     header: {
@@ -151,6 +155,13 @@ export const defaultIconState = [
     icon: paintLarge,
     title: 'Paint',
     component: Paint,
+    isFocus: false,
+  },
+  {
+    id: 6,
+    icon: mediaPlayer,
+    title: 'Windows Media Player',
+    component: MediaPlayer,
     isFocus: false,
   },
 ];
@@ -292,6 +303,33 @@ export const appSettings = {
     maximized: window.innerWidth < 800,
     multiInstance: true,
   },
+  'Windows Media Player': {
+    header: {
+      icon: mediaPlayer,
+      title: 'Windows Media Player',
+    },
+    component: MediaPlayer,
+    defaultSize: {
+      width: 620,
+      height: 480,
+    },
+    defaultOffset: {
+      x: 290,
+      y: 80,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    multiInstance: false,
+  },
 };
 
-export { InternetExplorer, Minesweeper, ErrorBox, MyComputer, Notepad, Winamp };
+export {
+  InternetExplorer,
+  Minesweeper,
+  ErrorBox,
+  MyComputer,
+  Notepad,
+  Winamp,
+  MediaPlayer,
+};

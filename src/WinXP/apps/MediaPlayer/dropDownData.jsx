@@ -1,36 +1,26 @@
 const File = [
   {
     type: 'item',
-    disable: true,
-    text: 'New',
-  },
-  {
-    type: 'item',
-    disable: true,
     text: 'Open...',
+    disable: true,
   },
   {
     type: 'item',
+    text: 'Open URL...',
     disable: true,
-    text: 'Save',
   },
   {
     type: 'item',
+    text: 'Save Now Playing List As...',
     disable: true,
-    text: 'Save As...',
   },
   {
     type: 'separator',
   },
   {
     type: 'item',
+    text: 'Properties',
     disable: true,
-    text: 'Page Setup...',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Print...',
   },
   {
     type: 'separator',
@@ -40,99 +30,127 @@ const File = [
     text: 'Exit',
   },
 ];
-const Edit = [
-  {
-    type: 'item',
-    disable: true,
-    text: 'Undo...',
-  },
-  {
-    type: 'separator',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Cut',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Copy',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Paste',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Delete',
-  },
-  {
-    type: 'separator',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Find...',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Find Next',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Replace...',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Go To...',
-  },
-  {
-    type: 'separator',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Select All',
-  },
-  {
-    type: 'item',
-    text: 'Time/Date',
-  },
-];
-const Format = [
-  {
-    type: 'item',
-    text: 'Word Wrap',
-  },
-  {
-    type: 'item',
-    disable: true,
-    text: 'Font...',
-  },
-];
+
 const View = [
   {
     type: 'item',
+    text: 'Now Playing',
     disable: true,
-    text: 'Status Bar',
+  },
+  {
+    type: 'item',
+    text: 'Media Library',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Full Screen',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Visualizations',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Statistics',
+    disable: true,
   },
 ];
+
+const Play = [
+  {
+    type: 'item',
+    text: 'Play/Pause',
+    disable: true,
+  },
+  {
+    type: 'item',
+    text: 'Stop',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Rewind',
+    disable: true,
+  },
+  {
+    type: 'item',
+    text: 'Fast Forward',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Previous',
+    disable: true,
+  },
+  {
+    type: 'item',
+    text: 'Next',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Shuffle',
+    disable: true,
+  },
+  {
+    type: 'item',
+    text: 'Repeat',
+    disable: true,
+  },
+];
+
+const Tools = [
+  {
+    type: 'item',
+    text: 'Search for Media Files...',
+    disable: true,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'item',
+    text: 'Options',
+    disable: true,
+  },
+];
+
 const Help = [
   {
     type: 'item',
-    disable: true,
     text: 'Help Topics',
+    disable: true,
+  },
+  {
+    type: 'separator',
   },
   {
     type: 'item',
+    text: 'About Windows Media Player',
     disable: true,
-    text: 'About Notepad',
   },
 ];
-export default { File, Edit, Format, View, Help };
+
+const dropDownData = { File, View, Play, Tools, Help };
+export default dropDownData;
