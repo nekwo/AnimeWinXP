@@ -42,6 +42,8 @@ const Window = memo(function ({
   header,
   defaultSize,
   defaultOffset,
+  mobileSize,
+  mobileOffset,
   resizable,
   maximized,
   component,
@@ -68,10 +70,13 @@ const Window = memo(function ({
   const dragRef = useRef(null);
   const ref = useRef(null);
   const { width: windowWidth, height: windowHeight } = useWindowSize();
+  const isMobile = windowWidth < 800;
+  const resolvedSize = (isMobile && mobileSize) ? mobileSize : defaultSize;
+  const resolvedOffset = (isMobile && mobileOffset) ? mobileOffset : defaultOffset;
   const { offset, size } = useElementResize(ref, {
     dragRef,
-    defaultOffset,
-    defaultSize,
+    defaultOffset: resolvedOffset,
+    defaultSize: resolvedSize,
     boundary: {
       top: 1,
       right: windowWidth - 1,
@@ -98,6 +103,7 @@ const Window = memo(function ({
       className={className}
       ref={ref}
       onMouseDown={_onMouseDown}
+      onTouchStart={_onMouseDown}
       style={{
         transform: `translate(${x}px,${y}px)`,
         width: width ? `${width}px` : 'auto',

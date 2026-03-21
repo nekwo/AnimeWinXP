@@ -27,7 +27,7 @@ import { DashedBox } from 'components';
 const initState = {
   apps: defaultAppState,
   nextAppID: defaultAppState.length,
-  nextZIndex: defaultAppState.length,
+  nextZIndex: Math.max(...defaultAppState.map((a) => a.zIndex)) + 1,
   focusing: FOCUSING.WINDOW,
   icons: defaultIconState,
   selecting: false,

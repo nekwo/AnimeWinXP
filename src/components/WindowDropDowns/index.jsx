@@ -20,10 +20,15 @@ export function WindowDropDowns({
   function onMouseUp(e) {
     if (!dropDown.current.contains(e.target)) setOpenOption('');
   }
+  function onTouchEnd(e) {
+    if (!dropDown.current.contains(e.target)) setOpenOption('');
+  }
   useEffect(() => {
     window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchend', onTouchEnd);
     return () => {
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
   return (
@@ -33,7 +38,11 @@ export function WindowDropDowns({
           <div
             key={name}
             onMouseDown={() => {
-              setOpenOption(name);
+              setOpenOption(openOption === name ? '' : name);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              setOpenOption(openOption === name ? '' : name);
             }}
             onMouseEnter={() => hoverOption(name)}
             className={`drop-down__label ${

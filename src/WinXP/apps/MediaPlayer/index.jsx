@@ -337,8 +337,10 @@ const SeekBackBtn = styled.button`
   cursor: pointer;
   padding: 0;
   margin-right: 8px;
-  &:hover {
-    background: url('/buttons/Bitmap1834.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap1834.png') center / contain no-repeat;
+    }
   }
 `;
 
@@ -351,8 +353,10 @@ const SeekFwdBtn = styled.button`
   cursor: pointer;
   padding: 0;
   margin-left: 4px;
-  &:hover {
-    background: url('/buttons/Bitmap1838.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap1838.png') center / contain no-repeat;
+    }
   }
 `;
 
@@ -393,8 +397,10 @@ const SeekThumb = styled.div`
   height: 13px;
   background: url('/buttons/Bitmap2242.png') center / contain no-repeat;
   cursor: grab;
-  &:hover {
-    background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+    }
   }
   &:active {
     cursor: grabbing;
@@ -430,12 +436,14 @@ const PlayPauseBtn = styled.button`
     center / contain no-repeat;
   cursor: pointer;
   padding: 0;
-  &:hover {
-    background: url(${(p) =>
-        p.$playing
-          ? '/buttons/Bitmap1818_pause_press.png'
-          : '/buttons/Bitmap1816_play_pressed.png'})
-      center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url(${(p) =>
+          p.$playing
+            ? '/buttons/Bitmap1818_pause_press.png'
+            : '/buttons/Bitmap1816_play_pressed.png'})
+        center / contain no-repeat;
+    }
   }
 `;
 
@@ -449,8 +457,10 @@ const StopBtn = styled.button`
   padding: 0;
   margin-left: -11px;
   margin-top: 10px;
-  &:hover {
-    background: url('/buttons/Bitmap1822.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap1822.png') center / contain no-repeat;
+    }
   }
 `;
 
@@ -462,8 +472,10 @@ const NextBtn = styled.button`
   background: url('/buttons/Bitmap1825_right.png') center / contain no-repeat;
   cursor: pointer;
   padding: 0;
-  &:hover {
-    background: url('/buttons/Bitmap1827_right.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap1827_right.png') center / contain no-repeat;
+    }
   }
 `;
 
@@ -475,8 +487,10 @@ const PrevBtn = styled.button`
   background: url('/buttons/Bitmap1825_left.png') center / contain no-repeat;
   cursor: pointer;
   padding: 0;
-  &:hover {
-    background: url('/buttons/Bitmap1827.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap1827.png') center / contain no-repeat;
+    }
   }
 `;
 
@@ -496,8 +510,10 @@ const MuteBtn = styled.button`
   background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1840.png')}) center / 100% 100% no-repeat;
   cursor: pointer;
   padding: 0;
-  &:hover {
-    background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1841.png')}) center / 100% 100% no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1841.png')}) center / 100% 100% no-repeat;
+    }
   }
 `;
 
@@ -542,8 +558,10 @@ const VolumeThumb = styled.div`
   height: 13px;
   background: url('/buttons/Bitmap2242.png') center / contain no-repeat;
   cursor: grab;
-  &:hover {
-    background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+  @media (hover: hover) {
+    &:hover {
+      background: url('/buttons/Bitmap2241.png') center / contain no-repeat;
+    }
   }
   &:active {
     cursor: grabbing;
