@@ -280,6 +280,28 @@ function useElementResize(ref, options) {
       window.addEventListener('touchmove', onResizingBottomRight, { passive: false });
       window.addEventListener('touchend', onResizeEndBottomRight);
     }
+    function getTouchResizePos(touch) {
+      const rect = target.getBoundingClientRect();
+      const offsetX = touch.clientX - rect.left;
+      const offsetY = touch.clientY - rect.top;
+      const { width, height } = rect;
+      const t = resizeThreshold * 2;
+      if (offsetX < t) {
+        if (offsetY < t) return 'topLeft';
+        if (height - offsetY < t) return 'bottomLeft';
+        return 'left';
+      }
+      if (offsetY < t) {
+        if (width - offsetX < t) return 'topRight';
+        return 'top';
+      }
+      if (width - offsetX < t) {
+        if (height - offsetY < t) return 'bottomRight';
+        return 'right';
+      }
+      if (height - offsetY < t) return 'bottom';
+      return '';
+    }
     function onMouseDown(e) {
       const { pageX, pageY } = normalizeEvent(e);
       originMouseX = pageX;
@@ -290,7 +312,10 @@ function useElementResize(ref, options) {
         return onDragStart(e);
       }
       if (e.target !== target || !resizable) return;
-      switch (cursorPos) {
+      const activePos = (e.touches && e.touches.length > 0)
+        ? getTouchResizePos(e.touches[0])
+        : cursorPos;
+      switch (activePos) {
         case 'topLeft':
           _boundary.right = originMouseX + previousSize.width - constraintSize;
           _boundary.bottom =

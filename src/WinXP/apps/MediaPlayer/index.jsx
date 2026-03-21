@@ -172,7 +172,7 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
     const rect = el.getBoundingClientRect();
     const pct = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
     setVolume(pct);
-    setMuted(false);
+    setMuted(pct === 0);
   }
 
   function onVolTrackMouseDown(e) {
