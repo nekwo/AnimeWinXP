@@ -85,11 +85,17 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
     if (!dragging) return;
     function onMouseMove(e) { seekTo(getSeekPercent(e.clientX)); }
     function onMouseUp() { setDragging(false); }
+    function onTouchMove(e) { e.preventDefault(); seekTo(getSeekPercent(e.touches[0].clientX)); }
+    function onTouchEnd() { setDragging(false); }
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, [dragging]);
 
@@ -111,6 +117,12 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
   function onTrackMouseDown(e) {
     e.preventDefault();
     seekTo(getSeekPercent(e.clientX));
+    setDragging(true);
+  }
+
+  function onTrackTouchStart(e) {
+    e.preventDefault();
+    seekTo(getSeekPercent(e.touches[0].clientX));
     setDragging(true);
   }
 
@@ -140,11 +152,17 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
     if (!volDragging) return;
     function onMouseMove(e) { setVolFromX(e.clientX); }
     function onMouseUp() { setVolDragging(false); }
+    function onTouchMove(e) { e.preventDefault(); setVolFromX(e.touches[0].clientX); }
+    function onTouchEnd() { setVolDragging(false); }
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, [volDragging]);
 
@@ -160,6 +178,12 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
   function onVolTrackMouseDown(e) {
     e.preventDefault();
     setVolFromX(e.clientX);
+    setVolDragging(true);
+  }
+
+  function onVolTrackTouchStart(e) {
+    e.preventDefault();
+    setVolFromX(e.touches[0].clientX);
     setVolDragging(true);
   }
 
@@ -200,7 +224,7 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
         <ControlsRight>
           <SeekRow>
             <SeekBackBtn title="-10s" onClick={seekBack} />
-            <SeekTrack ref={seekTrackRef} onMouseDown={onTrackMouseDown}>
+            <SeekTrack ref={seekTrackRef} onMouseDown={onTrackMouseDown} onTouchStart={onTrackTouchStart}>
               <SeekFill ref={seekFillRef} />
               <SeekThumb ref={seekThumbRef} />
             </SeekTrack>
@@ -217,7 +241,7 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
                 onClick={() => setMuted((m) => !m)}
                 $muted={muted}
               />
-              <VolumeWrapper ref={volTrackRef} onMouseDown={onVolTrackMouseDown}>
+              <VolumeWrapper ref={volTrackRef} onMouseDown={onVolTrackMouseDown} onTouchStart={onVolTrackTouchStart}>
                 <VolumeTrack>
                   <VolumeFill style={{ width: `${muted ? 0 : volume}%` }} />
                 </VolumeTrack>
