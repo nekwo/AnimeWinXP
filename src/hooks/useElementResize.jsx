@@ -285,7 +285,7 @@ function useElementResize(ref, options) {
       const offsetX = touch.clientX - rect.left;
       const offsetY = touch.clientY - rect.top;
       const { width, height } = rect;
-      const t = resizeThreshold * 2;
+      const t = resizeThreshold * 5;
       if (offsetX < t) {
         if (offsetY < t) return 'topLeft';
         if (height - offsetY < t) return 'bottomLeft';
