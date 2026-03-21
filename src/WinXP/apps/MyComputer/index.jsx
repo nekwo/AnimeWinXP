@@ -352,14 +352,14 @@ function MyComputer({ onClose }) {
                   <div className="com__content__right__card__text">Github</div>
                 </a>
                 <a
-                  href="https://exe.bot"
+                  href="https://exebot.cap.exe.bot"
                   target="_blank"
                   rel="noreferrer"
                   className="com__content__right__card__item--me"
                 >
                   <img
                     className="com__content__right__card__img"
-                    src="https://a.ppy.sh/2926513_1448497605.png"
+                    src="/favicon.ico"
                     alt="control"
                   />
                   <div className="com__content__right__card__text">

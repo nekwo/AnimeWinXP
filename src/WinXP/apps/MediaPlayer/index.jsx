@@ -12,6 +12,8 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
   const seekFillRef = useRef(null);
   const seekThumbRef = useRef(null);
   const volTrackRef = useRef(null);
+  const statusTimeRef = useRef(null);
+  const statusDurRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [volDragging, setVolDragging] = useState(false);
 
@@ -21,22 +23,31 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
   }
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (!autoPlayOnClick) return;
-    function onFirstClick() {
-      video.play().catch(() => {});
-      document.removeEventListener('click', onFirstClick);
-    }
-    document.addEventListener('click', onFirstClick);
-    return () => document.removeEventListener('click', onFirstClick);
+    updateSeekDom(0);
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    if (!autoPlayOnClick) return;
+    function onFirstClick() {
+      video.play().catch(() => {});
+      document.removeEventListener('mousedown', onFirstClick, true);
+    }
+    document.addEventListener('mousedown', onFirstClick, true);
+    return () => document.removeEventListener('mousedown', onFirstClick, true);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const fmtTime = (t) => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
     const onTimeUpdate = () => {
       updateSeekDom((video.currentTime / video.duration) * 100 || 0);
+      if (statusTimeRef.current) statusTimeRef.current.textContent = fmtTime(video.currentTime);
+    };
+    const onLoadedMetadata = () => {
+      if (statusDurRef.current) statusDurRef.current.textContent = `/ ${fmtTime(video.duration)}`;
     };
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
@@ -48,11 +59,13 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('ended', onEnded);
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
     return () => {
       video.removeEventListener('timeupdate', onTimeUpdate);
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEnded);
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
     };
   }, []);
 
@@ -168,10 +181,16 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
       </MenuBar>
       <Body>
         <NowPlaying>
-          <Video ref={videoRef} src={src} autoPlay muted={muted} />
+          <Video ref={videoRef} src={src} muted={muted} />
         </NowPlaying>
-      </Body>
-      <Controls>
+        <StatusBar>
+          <StatusLabel>
+            <img src={playing ? '/Icons/playing.gif' : '/Icons/pause.gif'} alt="" />
+            {playing ? 'Playing' : 'Paused'}
+          </StatusLabel>
+          <span><span ref={statusTimeRef}>0:00</span> <span ref={statusDurRef}>/ 0:00</span></span>
+        </StatusBar>
+        <Controls>
         <PlayPauseBtn
           title={playing ? 'Pause' : 'Play'}
           onClick={togglePlay}
@@ -198,14 +217,17 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
                 onClick={() => setMuted((m) => !m)}
                 $muted={muted}
               />
-              <VolumeTrack ref={volTrackRef} onMouseDown={onVolTrackMouseDown}>
-                <VolumeFill style={{ width: `${muted ? 0 : volume}%` }} />
+              <VolumeWrapper ref={volTrackRef} onMouseDown={onVolTrackMouseDown}>
+                <VolumeTrack>
+                  <VolumeFill style={{ width: `${muted ? 0 : volume}%` }} />
+                </VolumeTrack>
                 <VolumeThumb style={{ left: `calc(${muted ? 0 : volume}% - 9px)` }} />
-              </VolumeTrack>
+              </VolumeWrapper>
             </VolumeGroup>
           </BottomRow>
         </ControlsRight>
-      </Controls>
+        </Controls>
+      </Body>
     </Container>
   );
 }
@@ -231,8 +253,11 @@ const MenuBar = styled.section`
 
 const Body = styled.div`
   display: flex;
+  flex-direction: column;
   flex: 1;
   overflow: hidden;
+  background: #ebe9d8;               
+  padding: 2px;
 `;
 
 const NowPlaying = styled.div`
@@ -240,6 +265,31 @@ const NowPlaying = styled.div`
   background: #000;
   display: flex;
   overflow: hidden;
+`;
+
+/* ── STATUS BAR ── */
+const StatusBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #000;
+  border-top: 1px solid #fff;
+  padding: 0px 20px; 
+  font-size: 15px;
+  color:  #8dafd4;
+  flex-shrink: 0;
+`;
+
+
+const StatusLabel = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  img {
+    width: 42px;
+    height: 22px;
+    object-fit: contain;
+  }
 `;
 
 const Video = styled.video`
@@ -254,13 +304,14 @@ const Controls = styled.div`
     #b0c4de 0%,
     #7a96d4 10%,
     #5b7cc2 50%,
-    #4a6bb3 95%,
-    #2a407a 100%
+    #4c5fb5 75%,
+    #415ab3 95%,
+    #2a337a 100%
   );
   border-top: 1px solid #d1e0f3;
   border-bottom: 1px solid #1a2a52;
   padding: 4px 8px;
-  height: 52px;
+  height: 60px;
   box-sizing: border-box;
   flex-shrink: 0;
   display: flex;
@@ -285,7 +336,7 @@ const SeekBackBtn = styled.button`
   background: url('/buttons/Bitmap1833.png') center / contain no-repeat;
   cursor: pointer;
   padding: 0;
-  margin-right: 4px;
+  margin-right: 8px;
   &:hover {
     background: url('/buttons/Bitmap1834.png') center / contain no-repeat;
   }
@@ -310,13 +361,14 @@ const SeekRow = styled.div`
   align-items: center;
   position: relative;
   top: 5px;
+  margin-left: -12px;
 `;
 
 const SeekTrack = styled.div`
   flex: 1;
-  height: 4px;
+  height: 6px;
   border-radius: 2px;
-  background: #555;
+  background: linear-gradient(to bottom, #2a4a8a 0%, #3a5faa 5%, #5580c8 30%, #7ba3dc 90%, #c8d8f0 100%);
   position: relative;
   cursor: pointer;
   align-self: center;
@@ -352,7 +404,8 @@ const SeekThumb = styled.div`
 const BottomRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 18px;
   position: relative;
   top: 4px;
 `;
@@ -366,7 +419,7 @@ const TransportGroup = styled.div`
 
 const PlayPauseBtn = styled.button`
   width: 43px;
-  height: 43px;
+  height: 47px;
   flex-shrink: 0;
   border: none;
   margin-left: -8px;
@@ -387,14 +440,14 @@ const PlayPauseBtn = styled.button`
 `;
 
 const StopBtn = styled.button`
-  width: 33px;
-  height: 33px;
+  width: 37px;
+  height: 37px;
   flex-shrink: 0;
   border: none;
   background: url('/buttons/Bitmap1821.png') center / contain no-repeat;
   cursor: pointer;
   padding: 0;
-  margin-left: -14px;
+  margin-left: -11px;
   margin-top: 10px;
   &:hover {
     background: url('/buttons/Bitmap1822.png') center / contain no-repeat;
@@ -432,30 +485,44 @@ const VolumeGroup = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-top: 2px;
 `;
 
 const MuteBtn = styled.button`
-  width: 21px;
-  height: 16px;
+  width: 27px;
+  height: 22px;
   flex-shrink: 0;
   border: none;
-  background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1840.png')}) center / contain no-repeat;
+  background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1840.png')}) center / 100% 100% no-repeat;
   cursor: pointer;
   padding: 0;
   &:hover {
-    background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1841.png')}) center / contain no-repeat;
+    background: url(${(p) => (p.$muted ? '/buttons/Bitmap1842.png' : '/buttons/Bitmap1841.png')}) center / 100% 100% no-repeat;
   }
 `;
 
-const VolumeTrack = styled.div`
-  width: 70px;
-  height: 4px;
-  border-radius: 2px;
-  background: #555;
+const VolumeWrapper = styled.div`
+  width: 40px;
+  height: 12px;
   position: relative;
   cursor: pointer;
   align-self: center;
   overflow: visible;
+  margin-top: -4px;
+`;
+
+const VolumeTrack = styled.div`
+  position: absolute;
+  inset: 0;
+  clip-path: path('M 2 8 Q 0 8 0 11 Q 0 14 2 14 L 30 14 L 40 3 Z');
+  overflow: hidden;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #2a4a8a 5%, #3a5faa 50%, #5580c8 80%, #588ad0 100%);
+    pointer-events: none;
+  }
 `;
 
 const VolumeFill = styled.div`
@@ -464,7 +531,6 @@ const VolumeFill = styled.div`
   top: 0;
   height: 100%;
   background: #55c166;
-  border-radius: 2px;
   pointer-events: none;
 `;
 

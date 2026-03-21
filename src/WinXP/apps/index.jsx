@@ -129,7 +129,7 @@ export const defaultAppState = [
     resizable: true,
     minimized: false,
     maximized: window.innerWidth < 800,
-    injectProps: { src: '/moe.mp4' },
+    injectProps: { src: '/moe.mp4', autoPlayOnClick: false},
     id: genId(),
     zIndex: genIndex(),
   },
