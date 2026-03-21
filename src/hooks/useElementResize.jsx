@@ -285,7 +285,7 @@ function useElementResize(ref, options) {
       const offsetX = touch.clientX - rect.left;
       const offsetY = touch.clientY - rect.top;
       const { width, height } = rect;
-      const t = resizeThreshold * 10;
+      const t = resizeThreshold * 4;
       if (offsetX < t) {
         if (offsetY < t) return 'topLeft';
         if (height - offsetY < t) return 'bottomLeft';
@@ -311,10 +311,11 @@ function useElementResize(ref, options) {
         shouldCover = true;
         return onDragStart(e);
       }
-      if (e.target !== target || !resizable) return;
-      const activePos = (e.touches && e.touches.length > 0)
-        ? getTouchResizePos(e.touches[0])
-        : cursorPos;
+      if (!resizable) return;
+      const isTouch = e.touches && e.touches.length > 0;
+      if (!isTouch && e.target !== target) return;
+      const activePos = isTouch ? getTouchResizePos(e.touches[0]) : cursorPos;
+      if (isTouch && !activePos) return;
       switch (activePos) {
         case 'topLeft':
           _boundary.right = originMouseX + previousSize.width - constraintSize;
