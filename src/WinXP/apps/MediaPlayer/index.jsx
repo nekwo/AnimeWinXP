@@ -181,7 +181,7 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
       </MenuBar>
       <Body>
         <NowPlaying>
-          <Video ref={videoRef} src={src} muted={muted} loop={loop} />
+          <Video ref={videoRef} src={src} muted={muted} loop={loop} playsInline />
         </NowPlaying>
         <StatusBar>
           <StatusLabel>
