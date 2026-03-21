@@ -120,16 +120,16 @@ export const defaultAppState = [
     },
     defaultSize: {
       width: 1040,
-      height: 780,
+      height: 712,
     },
     defaultOffset: {
       x: 900,
-      y: 480,
+      y: 520,
     },
     resizable: true,
     minimized: false,
     maximized: window.innerWidth < 800,
-    injectProps: { src: '/moe.mp4', autoPlayOnClick: false},
+    injectProps: { src: '/moe.mp4', autoPlayOnClick: true, defaultMuted: true, loop: true },
     id: genId(),
     zIndex: genIndex(),
   },
@@ -140,7 +140,7 @@ export const defaultAppState = [
       icon: mediaPlayer,
     },
     defaultSize: {
-      width: 600,
+      width: 570,
       height: 698,
     },
     defaultOffset: {
@@ -150,10 +150,73 @@ export const defaultAppState = [
     resizable: true,
     minimized: false,
     maximized: window.innerWidth < 800,
-    injectProps: { src: '/boi.mp4', autoPlayOnClick: true},
+    injectProps: { src: '/boi.mp4', autoPlayOnClick: true, defaultMuted: false, loop: false },
     id: genId(),
     zIndex: genIndex(),
   },
+  {
+    component: MediaPlayer,
+    header: {
+      title: 'Windows Media Player',
+      icon: mediaPlayer,
+    },
+    defaultSize: {
+      width: 570,
+      height: 698,
+    },
+    defaultOffset: {
+      x: 1950,
+      y: 580,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    injectProps: { src: '/videos/tomoko.mp4', autoPlayOnClick: true, defaultMuted: true, loop: true},
+    id: genId(),
+    zIndex: genIndex(),
+  },
+  {
+    component: MediaPlayer,
+    header: {
+      title: 'Windows Media Player',
+      icon: mediaPlayer,
+    },
+    defaultSize: {
+      width: 570,
+      height: 460,
+    },
+    defaultOffset: {
+      x: 1950,
+      y: 100,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    injectProps: { src: '/videos/monogatari_loud.mp4', autoPlayOnClick: true, defaultMuted: true, loop: true},
+    id: genId(),
+    zIndex: genIndex(),
+  },
+  {
+    component: MediaPlayer,
+    header: {
+      title: 'Windows Media Player',
+      icon: mediaPlayer,
+    },
+    defaultSize: {
+      width: 570,
+      height: 460,
+    },
+    defaultOffset: {
+      x: 1150,
+      y: 50,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    injectProps: { src: '/videos/tlr.mp4', autoPlayOnClick: true, defaultMuted: true, loop: true},
+    id: genId(),
+    zIndex: genIndex(),
+  }
 ];
 
 export const defaultIconState = [

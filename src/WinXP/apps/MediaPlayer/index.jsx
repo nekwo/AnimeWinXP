@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { WindowDropDowns } from 'components';
 import dropDownData from './dropDownData';
 
-export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick = false }) {
+export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick = false, defaultMuted = false, loop = false }) {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(defaultMuted);
   const videoRef = useRef(null);
   const seekTrackRef = useRef(null);
   const seekFillRef = useRef(null);
@@ -181,11 +181,11 @@ export default function MediaPlayer({ onClose, src = '/moe.mp4', autoPlayOnClick
       </MenuBar>
       <Body>
         <NowPlaying>
-          <Video ref={videoRef} src={src} muted={muted} />
+          <Video ref={videoRef} src={src} muted={muted} loop={loop} />
         </NowPlaying>
         <StatusBar>
           <StatusLabel>
-            <img src={playing ? '/Icons/playing.gif' : '/Icons/pause.gif'} alt="" />
+            <img key={playing ? 'playing' : 'paused'} src={playing ? '/Icons/playing.gif' : '/Icons/pause.gif'} alt="" />
             {playing ? 'Playing' : 'Paused'}
           </StatusLabel>
           <span><span ref={statusTimeRef}>0:00</span> <span ref={statusDurRef}>/ 0:00</span></span>
