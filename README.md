@@ -1,12 +1,12 @@
  # Updated fork 
 
--switched to using all jsx files with vite instead of depreciated create-react-app
+- switched to using all jsx files with vite instead of depreciated create-react-app
 
--added windows media player 
+- added windows media player 
 
--anime stuf
+- anime stuf
 
--made most things work in mobile including resizing the windows
+- made most things work in mobile including resizing the windows
 
 - check it out here   https://exe.bot
 
