@@ -6,6 +6,8 @@
 
 -anime stuf
 
+- check it out here   https://exe.bot
+
 # WinXP
 
 🏁 Web based Windows XP desktop recreation.
