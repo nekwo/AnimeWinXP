@@ -1,3 +1,11 @@
+ # Updated fork 
+
+-switched to using all jsx files with vite instead of depreciated create-react-app
+
+-added windows media player 
+
+-anime stuf
+
 # WinXP
 
 🏁 Web based Windows XP desktop recreation.
