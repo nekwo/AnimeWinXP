@@ -6,7 +6,7 @@
 
 - anime stuf
 
-- made most things work in mobile including resizing the windows
+- made most things work on mobile including resizing the windows
 
 - check it out here   https://exe.bot
 
