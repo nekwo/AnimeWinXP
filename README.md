@@ -21,11 +21,33 @@ Features:
 - Minesweeper, Internet Explorer, My Computer, Notepad, Winamp, Paint
 - Power off menu
 
-## [Try it!](https://winxp.now.sh)
+## [Try it!](https://exe.bot)
 
-Windows XP 👉 https://winxp.now.sh
+Windows XP 👉 https://exe.bot
 
-[![](demo/demo.gif)](https://winxp.now.sh)
+[![](demo/demo.gif)](https://exe.bot)
+
+## Local development
+
+```bash
+npm install
+npm start
+```
+
+## Self-hosting
+
+A `Dockerfile` and Kubernetes manifests under `k8s/` are included for
+self-hosters. The container is a static nginx image serving the Vite
+build output.
+
+```bash
+docker build -t <your-registry>/anime-win-xp:latest .
+docker push   <your-registry>/anime-win-xp:latest
+kubectl apply -f k8s/
+```
+
+Edit the image reference in `k8s/deployment.yaml` and the hostname in
+`k8s/ingress.yaml` to match your own setup.
 
 ## Contributing
 
